@@ -1,0 +1,53 @@
+/* .his  {
+  border-radius: 20px;
+  box-shadow: 0 0 20px 8px #d0d0d0;
+} */
+
+.his .selfpay-frame {
+  padding-top: 48px;
+}
+
+.his .selfpay-container {
+  display: grid;
+  grid-template-columns: 1fr 3fr;
+  height: calc(100vh - 102px);
+  /* column-gap: 8px; */
+}
+
+/* 보험유형 검색 TextField */
+.his .insn-search-frame div[data-orbit-component=OBTComplete] {
+  width: 100%;
+}
+
+.his .insn-search {
+  width: 100%;
+}
+
+.his .insn-search span {
+  height: 100% !important;
+}
+
+.his .svg-search, .his .svg-close {
+  position: absolute;
+  top: 50%;
+  transform: translate(-20px, -50%);
+}
+
+.his .svg-close:hover {
+  fill: #ff6b6b;
+}
+
+/* 보험유형 목록 */
+.his .insn-treeview {
+  border: none;
+}
+
+/* 외래/입원 TAB */
+.his .insn-tab > div > div > div {
+  border: none !important;
+}
+
+.his .insn-tab > div > div > div > div {
+  border-bottom: 1px solid rgb(158, 158, 158);;
+}
+
