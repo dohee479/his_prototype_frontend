@@ -15,7 +15,7 @@
 }
 
 /* 보험유형 검색 TextField */
-.his .insn-search-frame div[data-orbit-component=OBTComplete] {
+.his .insn-search-frame div[data-orbit-component='OBTComplete'] {
   width: 100%;
 }
 
@@ -27,7 +27,8 @@
   height: 100% !important;
 }
 
-.his .svg-search, .his .svg-close {
+.his .svg-search,
+.his .svg-close {
   position: absolute;
   top: 50%;
   transform: translate(-20px, -50%);
@@ -48,6 +49,12 @@
 }
 
 .his .insn-tab > div > div > div > div {
-  border-bottom: 1px solid rgb(158, 158, 158);;
+  border-bottom: 1px solid rgb(158, 158, 158);
 }
 
+/* OBTFormPanel */
+.his .insn-formpanel-border table[data-orbit-component='OBTFormPanel'] {
+  /* width: 100%; */
+  border-left: 1px solid #e6e6e6;
+  border-right: 1px solid #e6e6e6;
+}

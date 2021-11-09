@@ -1,151 +1,116 @@
-import { OBTComplete, OBTTreeView } from "luna-orbit";
-import { useState } from "react";
-import { insuranceList } from "../data/insurance";
-let dataArr = [
-  {
-    name: "홍길동",
-    company: "더존비즈온 EBP사업본부 EBP프로젝트관리부",
-    email: "abcdefg1@douzone.com",
-  },
-  {
-    name: "홍길준",
-    company: "더존비즈온 EBP사업본부 EBP전략사업부",
-    email: "abcdefg6@douzone.com",
-  },
-  {
-    name: "김홍길",
-    company: "더존비즈온 EBP사업본부 EBP컨설팅센터",
-    email: "abcdefg3@douzone.com",
-  },
-  {
-    name: "최홍길",
-    company: "더존비즈온 EBP사업본부 EBP기획부",
-    email: "abcdefg4@douzone.com",
-  },
-  {
-    name: "박홍길",
-    company: "더존비즈온 EBP사업본부 EBP고객지원부",
-    email: "abcdefg5@douzone.com",
-  },
-  {
-    name: "이홍길",
-    company: "더존비즈온 EBP사업본부 EBP전략사업부",
-    email: "abcdefg6@douzone.com",
-  },
-];
+import { OBTComplete, OBTTreeView } from 'luna-orbit';
+import { useEffect, useState } from 'react';
+import { getIntyList, searchInty } from '../../../utils/Hooks/api/UschApiService';
+
 function InsuranceType(props: any) {
   // 보험유형검색 state
-  const [insnKeyword, setInsnKeyword] = useState({
-    value: "",
-    validateState: "",
-  });
+  const [insnKeyword, setInsnKeyword] = useState('');
+
+  // 보험유형 검색 ref
+  // const searchRef = useRef();
 
   // 보험유형검색(입력 될 때의 함수)
-  const handleInsnKeyword = (e: any) => {
-    setInsnKeyword({
-      ...insnKeyword,
-      value: e.value,
-    });
+  const handleInsnKeyword = async (e: any) => {
+    setInsnKeyword(e.value);
   };
 
   // x 누르면 검색창안에 keyword 모두 삭제
   const eraseAll = () => {
-    setInsnKeyword({
-      ...insnKeyword,
-      value: "",
-    });
+    setInsnKeyword('');
   };
 
   // smart complete
-  const searchData = (keyword: string): Promise<any[]> => {
-    return new Promise((resolve, reject) => {
-      let result = dataArr.filter(isMatch(keyword));
-      resolve(result);
-    });
-  };
-
-  const isMatch = (keyword: string) => {
-    return (value: any) => {
-      let result =
-        value["name"].indexOf(keyword) !== -1 ||
-        value["email"].indexOf(keyword) !== -1 ||
-        value["company"].indexOf(keyword) !== -1;
-      return result;
-    };
-  };
-
-  const handleSearch = (keyword: string): Promise<any[]> => {
-    return searchData(keyword);
+  const handleSearch = async (keyword: string): Promise<any[]> => {
+    return await searchInty(keyword);
   };
 
   const getDataInfo = () => {
     return {
-      columnWidths: ["15%", "40%", "40%"], //itemInfo를 총 3칸으로 나눠 배치하고, 각각 너비를 지정합니다.
+      columnWidths: ['15%', '40%', '40%'], //itemInfo를 총 3칸으로 나눠 배치하고, 각각 너비를 지정합니다.
       itemInfo: [
         {
-          key: "name",
+          key: 'inty_lcls',
           column: 0,
           isKeyValue: true,
         },
         {
-          key: "company",
+          key: 'inty_type_asst_1',
           column: 1,
+          isKeyValue: true,
         },
         {
-          key: "email",
+          key: 'inty_type_asst_2',
           column: 2,
+          isKeyValue: true,
         },
       ],
     };
   };
 
   // 보험유형 목록 state
-  const [insnList, setInsnList] = useState(insuranceList);
+  const [insnList, setInsnList] = useState<any>({
+    selectedItem: '',
+    list: [],
+  });
 
   const onMapItem = (e: any) => {
     let list = e.list;
     e.item = {
       key: list.CODE,
       parentKey: list.PARENT,
-      labelText: list.NAME
+      labelText: list.NAME,
+    };
+  };
+
+  // 보험유형 목록을 불러오는 useEffect
+  useEffect(() => {
+    const fetchAndSetIntyList = async () => {
+      setInsnList(await getIntyList());
+    };
+    fetchAndSetIntyList();
+  }, []);
+
+  const clickSearchInty = (e: any) => {
+    if (e.target.data) {
+      setInsnList({ ...insnList, selectedItem: e.target.value });
+      props.setInty(e.target.data);
     }
-  }
+  };
+
+  useEffect(() => {
+    // console.log('selectedItem', insnList.selectedItem);
+  }, [insnList.selectedItem]);
+
+  // Treeview onSelectChange 함수
+  const onAfterSelectChange = (item: any) => {
+    // console.log('item', item);
+    setInsnList({ ...insnList, selectedItem: item.ID });
+    if (item.FULLNAME) {
+      const inty = JSON.parse(item.FULLNAME);
+      props.setInty(inty);
+    }
+  };
 
   return (
     <>
       <div>
         {/* 보험유형 검색 */}
-        <div style={{ padding: "16px", borderBottom: "1px solid #f1f3f5" }}>
-          <div style={{ fontWeight: "bold" }}>보험유형 검색</div>
-          <div
-            style={{ margin: "8px 0", position: "relative" }}
-            className="insn-search-frame"
-          >
+        <div style={{ padding: '16px', borderBottom: '1px solid #f1f3f5' }}>
+          <div style={{ fontWeight: 'bold' }}>보험유형 검색</div>
+          <div style={{ margin: '8px 0', position: 'relative' }} className="insn-search-frame">
             <OBTComplete
+              // ref={searchRef}
               className="insn-search"
-              value={insnKeyword.value}
-              onChange={(e) => handleInsnKeyword(e)}
+              value={insnKeyword}
+              onChange={(e) => {
+                handleInsnKeyword(e);
+                clickSearchInty(e);
+              }}
               onSearch={handleSearch}
               dataInfo={getDataInfo()}
               placeHolder="유형명으로 검색하세요"
             />
-            {insnKeyword.value ? (
-              // <svg
-              //   height="16"
-              //   aria-hidden="true"
-              //   focusable="false"
-              //   data-prefix="fas"
-              //   data-icon="times-circle"
-              //   className="svg-inline--fa fa-times-circle fa-w-16 svg-close"
-              //   role="img"
-              //   xmlns="http://www.w3.org/2000/svg"
-              //   viewBox="0 0 512 512"
-              //   fill="currentColor"
-              // >
-              //   <path
-              //     d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm121.6 313.1c4.7 4.7 4.7 12.3 0 17L338 377.6c-4.7 4.7-12.3 4.7-17 0L256 312l-65.1 65.6c-4.7 4.7-12.3 4.7-17 0L134.4 338c-4.7-4.7-4.7-12.3 0-17l65.6-65-65.6-65.1c-4.7-4.7-4.7-12.3 0-17l39.6-39.6c4.7-4.7 12.3-4.7 17 0l65 65.7 65.1-65.6c4.7-4.7 12.3-4.7 17 0l39.6 39.6c4.7 4.7 4.7 12.3 0 17L312 256l65.6 65.1z"
-              //   ></path>
-              // </svg>
+            {insnKeyword ? (
               <svg
                 height="16"
                 aria-hidden="true"
@@ -182,21 +147,18 @@ function InsuranceType(props: any) {
           </div>
         </div>
         {/* 보험유형 목록 */}
-        <div style={{ padding: "16px" }}>
-          <div style={{ fontWeight: "bold" }}>보험유형 목록</div>
+        <div style={{ padding: '16px' }}>
+          <div style={{ fontWeight: 'bold' }}>보험유형 목록</div>
           <div style={{ height: '100%' }}>
             <OBTTreeView
-              key="1993"
               list={insnList.list}
               childCount={true}
               type={OBTTreeView.Type.default}
-              onAfterSelectChange={({ item }) => {
-                setInsnList({ ...insnList, selectedItem: item.key })
-              }}
-              // onMapItem={onMapItem}
+              onAfterSelectChange={({ item }) => onAfterSelectChange(item)}
+              onMapItem={onMapItem}
               selectedItem={insnList.selectedItem}
-              width='100%'
-              height='100%'
+              width="100%"
+              height="100%"
               className="insn-treeview"
             ></OBTTreeView>
           </div>

@@ -199,12 +199,12 @@ function Left(props : any) {
   // 검색
   const search = async (e: any) => {
     setKeyword(e.value);
-    // setState(
-    //   {
-    //     ...state,
-    //     results: await getEdiCondition(chapter, insurance, group, e.value)
-    //   }
-    // )
+    setState(
+      {
+        ...state,
+        results: await getEdiCondition(chapter, insurance, group, e.value)
+      }
+    )
   }
 
   // const useProvider = useListGridProvider(state.results);
